@@ -10,18 +10,30 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { RootStackParamList } from '../types';
 import IconButton from '../components/ui/IconButton';
 
-type Props = NativeStackScreenProps<RootStackParamList>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Map'>;
 
-const Map = ({ navigation }: Props) => {
-  const [selectedLocation, setSelectedLocation] = useState<LatLng>();
+const Map = ({ navigation, route }: Props) => {
+  const startPoint = route.params?.location;
+
+  const initialLocation: LatLng = startPoint && {
+    latitude: startPoint.lat,
+    longitude: startPoint.lng,
+  };
+
+  const [selectedLocation, setSelectedLocation] =
+    useState<LatLng>(initialLocation);
+
   const region: Region = {
-    latitude: 37.78,
-    longitude: -122.43,
+    latitude: initialLocation ? initialLocation.latitude : 37.78,
+    longitude: initialLocation ? initialLocation.longitude : -122.43,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
   const selectLocationHandler = (e: MapPressEvent) => {
+    if (startPoint) {
+      return;
+    }
     setSelectedLocation(e.nativeEvent.coordinate);
   };
 
@@ -38,6 +50,9 @@ const Map = ({ navigation }: Props) => {
   }, [navigation, selectedLocation]);
 
   useLayoutEffect(() => {
+    if (startPoint) {
+      return;
+    }
     navigation.setOptions({
       headerRight: ({ tintColor }) => (
         <IconButton
@@ -48,7 +63,7 @@ const Map = ({ navigation }: Props) => {
         />
       ),
     });
-  }, [navigation, savePickedLocationHandler]);
+  }, [startPoint, navigation, savePickedLocationHandler]);
 
   return (
     <MapView

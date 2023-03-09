@@ -6,20 +6,41 @@ import {
   useForegroundPermissions,
   PermissionStatus,
 } from 'expo-location';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ICoords, RootStackParamList } from '../../types';
-import { getMapPreview } from '../../util/location';
-import { useNavigation } from '@react-navigation/native';
+import { getAddress, getMapPreview } from '../../util/location';
+import {
+  RouteProp,
+  useNavigation,
+  useRoute,
+  useIsFocused,
+} from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type AddScreenRouteProp = RouteProp<RootStackParamList, 'AddPlace'>;
 
-const LocationPicker = () => {
+interface Props {
+  onPickLocation: (location: ICoords, address: string) => void;
+}
+
+const LocationPicker = ({ onPickLocation }: Props) => {
   const [pickedLocation, setPickedLocation] = useState<ICoords>();
   const [locationPermissionInformation, requestPermission] =
     useForegroundPermissions();
 
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<AddScreenRouteProp>();
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (route.params && route.params.pickedLocation && isFocused) {
+      setPickedLocation({
+        lat: route.params.pickedLocation.latitude,
+        lng: route.params.pickedLocation.longitude,
+      });
+    }
+  }, [route.params, isFocused]);
 
   const verifyPermissions = async () => {
     if (
@@ -46,7 +67,6 @@ const LocationPicker = () => {
     }
 
     const location = await getCurrentPositionAsync();
-    console.log(location);
     setPickedLocation({
       lat: location.coords.latitude,
       lng: location.coords.longitude,
@@ -56,6 +76,17 @@ const LocationPicker = () => {
   const pickOnMapHandler = () => {
     navigation.navigate('Map');
   };
+
+  useEffect(() => {
+    const handleLocation = async () => {
+      if (pickedLocation) {
+        const address = await getAddress(pickedLocation);
+        onPickLocation(pickedLocation, address.formatted);
+      }
+    };
+
+    handleLocation();
+  }, [pickedLocation, onPickLocation]);
 
   return (
     <View>

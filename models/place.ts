@@ -1,24 +1,24 @@
 import { ICoords } from './../types/index';
 
 class Place {
-  id: string;
+  id: number;
   title: string;
-  imageUrl: string;
+  imageUri: string;
   address: string;
   location: ICoords;
 
   constructor(
     title: string,
-    imageUrl: string,
+    imageUri: string,
     address: string,
-    location: ICoords
+    location: ICoords,
+    id?: number
   ) {
     this.title = title;
-    this.imageUrl = imageUrl;
+    this.imageUri = imageUri;
     this.address = address;
     this.location = location;
-    this.id = crypto.randomUUID();
-    // this.id = new Date().toString() + Math.random().toString
+    this.id = id;
   }
 }
 

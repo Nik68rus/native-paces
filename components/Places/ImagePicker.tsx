@@ -3,13 +3,16 @@ import {
   launchCameraAsync,
   useCameraPermissions,
   PermissionStatus,
-  ImagePickerResult,
 } from 'expo-image-picker';
 import { useState } from 'react';
 import { Colors } from '../../constants/colors';
 import OutlinedButton from '../ui/OutlinedButton';
 
-function ImagePicker() {
+interface Props {
+  onTakeImage: (imageUri: string) => void;
+}
+
+function ImagePicker({ onTakeImage }: Props) {
   const [pickedImage, setPickedImage] = useState<string>();
   const [cameraPermissionsInformation, requestPermission] =
     useCameraPermissions();
@@ -42,6 +45,7 @@ function ImagePicker() {
       quality: 0.5,
     });
     setPickedImage(image.assets[0].uri);
+    onTakeImage(image.assets[0].uri);
   };
 
   let imagePreview = <Text>No image picked yet!</Text>;

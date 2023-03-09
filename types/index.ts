@@ -1,9 +1,5 @@
 import { LatLng } from 'react-native-maps';
-
-export interface IPlace {
-  id: string;
-  title: string;
-}
+import { Place } from '../models/place';
 
 export interface ICoords {
   lat: number;
@@ -13,6 +9,15 @@ export interface ICoords {
 export type RootStackParamList = {
   AllPlaces: undefined;
   AddPlace: { pickedLocation: LatLng };
-  PlaceDetails: undefined;
-  Map: undefined;
+  PlaceDetails: { placeId: number };
+  Map: { location: ICoords };
 };
+
+export interface IPlace {
+  id: number;
+  title: string;
+  imageUri: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
